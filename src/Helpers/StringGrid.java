@@ -202,37 +202,32 @@ public class StringGrid {
 
     /**
      * Keeps track of the corners where target is found
-     * 0: top-left
-     * 1: top-right
-     * 2: bottom-right
-     * 3: bottom-left
+     * 0b1000: top-left
+     * 0b0100: top-right
+     * 0b0010: bottom-right
+     * 0b0001: bottom-left
      * 
      * @param row    Row position
      * @param col    Column position
      * @param target Target string
      * @return
      */
-    public HashMap<Integer, Integer> getMasMapping(int row, int col, String target) {
-        HashMap<Integer, Integer> mapping = new HashMap<>();
-
-        mapping.put(0, 1);
-        mapping.put(1, 1);
-        mapping.put(2, 1);
-        mapping.put(3, 1);
+    public int getMasBitmap(int row, int col, String target) {
+        int result = 0b1111;
 
         // up-left
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
             if (col - i < 0 || row - i < 0) {
-                mapping.put(0, 0);
+                result &= 0b0111;
                 break;
             }
 
             String gridVal = grid.get(col - i).get(row - i);
 
             if (!s.equals(gridVal)) {
-                mapping.put(0, 0);
+                result &= 0b0111;
                 break;
             }
         }
@@ -242,14 +237,14 @@ public class StringGrid {
             String s = String.valueOf(target.charAt(i));
 
             if (col - i < 0 || row + i >= numRows) {
-                mapping.put(1, 0);
+                result &= 0b1011;
                 break;
             }
 
             String gridVal = grid.get(col - i).get(row + i);
 
             if (!s.equals(gridVal)) {
-                mapping.put(1, 0);
+                result &= 0b1011;
                 break;
             }
         }
@@ -259,14 +254,14 @@ public class StringGrid {
             String s = String.valueOf(target.charAt(i));
 
             if (col + i >= numCols || row + i >= numRows) {
-                mapping.put(2, 0);
+                result &= 0b1101;
                 break;
             }
 
             String gridVal = grid.get(col + i).get(row + i);
 
             if (!s.equals(gridVal)) {
-                mapping.put(2, 0);
+                result &= 0b1101;
                 break;
             }
         }
@@ -276,19 +271,19 @@ public class StringGrid {
             String s = String.valueOf(target.charAt(i));
 
             if (col + i >= numCols || row - i < 0) {
-                mapping.put(3, 0);
+                result &= 0b1110;
                 break;
             }
 
             String gridVal = grid.get(col + i).get(row - i);
 
             if (!s.equals(gridVal)) {
-                mapping.put(3, 0);
+                result &= 0b1110;
                 break;
             }
         }
 
-        return mapping;
+        return result;
     }
 
     @Override

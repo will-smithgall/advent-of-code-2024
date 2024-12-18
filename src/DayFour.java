@@ -1,5 +1,4 @@
 import Helpers.StringGrid;
-import java.util.HashMap;
 
 public class DayFour {
     final String TARGET = "XMAS";
@@ -47,29 +46,23 @@ public class DayFour {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                HashMap<Integer, Integer> asMap = grid.getMasMapping(i, j, MAS_AS);
-                HashMap<Integer, Integer> maMap = grid.getMasMapping(i, j, MAS_MA);
-
-                if (grid.searchForString(i, j, MAS_AS, onlyCorners) == 2
-                        && grid.searchForString(i, j, MAS_MA, onlyCorners) == 2) {
-                    if (asMap.get(0) == 1 && asMap.get(2) == 1) {
-                        continue;
-                    }
-
-                    if (asMap.get(1) == 1 && asMap.get(3) == 1) {
-                        continue;
-                    }
-
-                    if (maMap.get(0) == 1 && maMap.get(2) == 1) {
-                        continue;
-                    }
-
-                    if (maMap.get(1) == 1 && maMap.get(3) == 1) {
-                        continue;
-                    }
-
-                    result += 1;
+                if (grid.searchForString(i, j, MAS_AS, onlyCorners) != 2 || grid.searchForString(i, j, MAS_MA, onlyCorners) != 2) {
+                    continue;
                 }
+
+                // Make sure diag corners are not the same char
+                int asMap = grid.getMasBitmap(i, j, MAS_AS);
+                int maMap = grid.getMasBitmap(i, j, MAS_MA);
+
+                if (asMap == 0b1010 || asMap == 0b0101) {
+                    continue;
+                }
+
+                if (maMap == 0b1010 || maMap == 0b0101) {
+                    continue;
+                }
+
+                result += 1;
             }
         }
 
