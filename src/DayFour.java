@@ -46,7 +46,8 @@ public class DayFour {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (grid.searchForString(i, j, MAS_AS, onlyCorners) != 2 || grid.searchForString(i, j, MAS_MA, onlyCorners) != 2) {
+                if (grid.searchForString(i, j, MAS_AS, onlyCorners) != 2
+                        || grid.searchForString(i, j, MAS_MA, onlyCorners) != 2) {
                     continue;
                 }
 

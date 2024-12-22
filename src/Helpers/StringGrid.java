@@ -4,24 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+import javax.print.attribute.HashAttributeSet;
+
 public class StringGrid {
     private ArrayList<ArrayList<String>> grid;
-    private int numRows;
-    private int numCols;
+    private int height;
+    private int width;
 
-    // empty grid
-    public StringGrid() {
-        grid = new ArrayList<ArrayList<String>>();
-        numRows = numCols = 0;
-    }
-
-    public int getRows() {
-        return numRows;
-    }
-
-    public int getCols() {
-        return numCols;
-    }
+    private HashMap<String, int[]> directions;
+    private HashMap<String, int[]> diagonals;
 
     // create new grid from input file
     public StringGrid(String fp) {
@@ -44,8 +35,97 @@ public class StringGrid {
             System.out.println(String.format("File with name \"%s\" not found.", fp));
         }
 
-        numCols = grid.size();
-        numRows = grid.get(0).size();
+        width = grid.size();
+        height = grid.get(0).size();
+
+        directions = new HashMap<>();
+        diagonals = new HashMap<>();
+
+        directions.put("north", new int[] { -1, 0 });
+        directions.put("south", new int[] { 1, 0 });
+        directions.put("east", new int[] { 0, 1 });
+        directions.put("west", new int[] { 0, -1 });
+
+        diagonals.put("northwest", new int[] { -1, -1 }); // up-left
+        diagonals.put("northeast", new int[] { -1, 1 }); // up-right
+        diagonals.put("southwest", new int[] { 1, -1 }); // down-left
+        diagonals.put("southeast", new int[] { 1, 1 }); // down-right
+    }
+
+    public int getRows() {
+        return height;
+    }
+
+    public int getCols() {
+        return width;
+    }
+
+    public HashMap<String, int[]> getDirections() {
+        return directions;
+    }
+
+    public HashMap<String, int[]> getDiagonals() {
+        return diagonals;
+    }
+
+    public String getVal(int[] pos) {
+        return grid.get(pos[0]).get(pos[1]);
+    }
+
+    public void setVal(int[] pos, String val) {
+        grid.get(pos[0]).set(pos[1], val);
+    }
+
+    public boolean inBounds(int row, int col) {
+        return row >= 0 && row < width && col >= 0 && col < height;
+    }
+
+    // movement
+
+    /**
+     * Move 1 step towards direction "facing"
+     * 
+     * @param pos           int[] in the form (row, col)
+     * @param directionType String value of direction being faced
+     * @return int[] of the new position -> (row, col)
+     */
+    public int[] step(int[] pos, String facing) {
+        int[] dir = directions.get(facing);
+
+        int row = pos[0];
+        int col = pos[1];
+
+        row += dir[0];
+        col += dir[1];
+
+        if (!inBounds(row, col)) {
+            return null;
+        }
+
+        return new int[] { row, col };
+    }
+
+    /**
+     * Find location of token, or first instance of token if multiple
+     * 
+     * @param token Singular string token to search for
+     * @return Return int[] position as (row, col), null if no token
+     */
+    public int[] find(String token) {
+        int[] pos = new int[2];
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (grid.get(i).get(j).equals(token)) {
+                    pos[0] = i;
+                    pos[1] = j;
+
+                    return pos;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -64,7 +144,7 @@ public class StringGrid {
             for (int i = 0; i < target.length(); i++) {
                 String s = String.valueOf(target.charAt(i));
 
-                if (col - i < 0) {
+                if (!inBounds(row, col - i)) {
                     result -= 1;
                     break;
                 }
@@ -81,7 +161,7 @@ public class StringGrid {
             for (int i = 0; i < target.length(); i++) {
                 String s = String.valueOf(target.charAt(i));
 
-                if (col + i >= numCols) {
+                if (!inBounds(row, col + i)) {
                     result -= 1;
                     break;
                 }
@@ -98,7 +178,7 @@ public class StringGrid {
             for (int i = 0; i < target.length(); i++) {
                 String s = String.valueOf(target.charAt(i));
 
-                if (row - i < 0) {
+                if (!inBounds(row - i, col)) {
                     result -= 1;
                     break;
                 }
@@ -115,7 +195,7 @@ public class StringGrid {
             for (int i = 0; i < target.length(); i++) {
                 String s = String.valueOf(target.charAt(i));
 
-                if (row + i >= numRows) {
+                if (!inBounds(row + i, col)) {
                     result -= 1;
                     break;
                 }
@@ -133,7 +213,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col - i < 0 || row + i >= numRows) {
+            if (!inBounds(row + i, col - i)) {
                 result -= 1;
                 break;
             }
@@ -150,7 +230,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col - i < 0 || row - i < 0) {
+            if (!inBounds(row - i, col - i)) {
                 result -= 1;
                 break;
             }
@@ -167,7 +247,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col + i >= numCols || row + i >= numRows) {
+            if (!inBounds(row + i, col + i)) {
                 result -= 1;
                 break;
             }
@@ -184,7 +264,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col + i >= numCols || row - i < 0) {
+            if (!inBounds(row - i, col + i)) {
                 result -= 1;
                 break;
             }
@@ -219,7 +299,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col - i < 0 || row - i < 0) {
+            if (!inBounds(row - i, col - i)) {
                 result &= 0b0111;
                 break;
             }
@@ -236,7 +316,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col - i < 0 || row + i >= numRows) {
+            if (!inBounds(row + i, col - i)) {
                 result &= 0b1011;
                 break;
             }
@@ -253,7 +333,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col + i >= numCols || row + i >= numRows) {
+            if (!inBounds(row + i, col + i)) {
                 result &= 0b1101;
                 break;
             }
@@ -270,7 +350,7 @@ public class StringGrid {
         for (int i = 0; i < target.length(); i++) {
             String s = String.valueOf(target.charAt(i));
 
-            if (col + i >= numCols || row - i < 0) {
+            if (!inBounds(row - i, col + i)) {
                 result &= 0b1110;
                 break;
             }
@@ -291,17 +371,17 @@ public class StringGrid {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n");
-        sb.append(String.format("%d x %d\n", numRows, numCols));
+        sb.append(String.format("%d x %d\n", height, width));
         sb.append("\n");
 
-        if (numRows <= 25 && numCols <= 25) {
-            for (int i = 0; i < grid.size(); i++) {
-                for (int j = 0; j < grid.get(i).size(); j++) {
-                    sb.append(grid.get(i).get(j) + " ");
-                }
-                sb.append("\n");
+        // if (height <= 25 && width <= 25) {
+        for (int i = 0; i < grid.size(); i++) {
+            for (int j = 0; j < grid.get(i).size(); j++) {
+                sb.append(grid.get(i).get(j) + " ");
             }
+            sb.append("\n");
         }
+        // }
 
         return sb.toString();
     }
