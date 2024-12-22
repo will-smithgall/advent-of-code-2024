@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-import javax.print.attribute.HashAttributeSet;
-
 public class StringGrid {
     private ArrayList<ArrayList<String>> grid;
     private int height;
@@ -374,14 +372,14 @@ public class StringGrid {
         sb.append(String.format("%d x %d\n", height, width));
         sb.append("\n");
 
-        // if (height <= 25 && width <= 25) {
-        for (int i = 0; i < grid.size(); i++) {
-            for (int j = 0; j < grid.get(i).size(); j++) {
-                sb.append(grid.get(i).get(j) + " ");
+        if (height <= 25 && width <= 25) {
+            for (int i = 0; i < grid.size(); i++) {
+                for (int j = 0; j < grid.get(i).size(); j++) {
+                    sb.append(grid.get(i).get(j) + " ");
+                }
+                sb.append("\n");
             }
-            sb.append("\n");
         }
-        // }
 
         return sb.toString();
     }
